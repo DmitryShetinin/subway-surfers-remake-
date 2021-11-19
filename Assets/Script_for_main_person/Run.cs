@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public class Run : MonoBehaviour
 {
-
+    public GameObject _trail_render;
     public GameObject _base;
+
     enum number_of_lines{
         _left_line,
         _right_line,
@@ -20,6 +18,11 @@ public class Run : MonoBehaviour
     private Vector3 _right_line;
     private Vector3 _middle_line;
 
+
+    bool _end = true;
+
+
+
     void Start()
     {
         _line_now = number_of_lines._middle_line; 
@@ -28,36 +31,56 @@ public class Run : MonoBehaviour
         _right_line = new Vector3(GameObject.Find("_right_line").transform.position.x, _location.y, _location.z);
         _middle_line = new Vector3(GameObject.Find("_middle_line").transform.position.x, _location.y, _location.z);
     }
- 
 
-
-    // Update is called once per frame
+    // Update is called once per frame 
     void Update()
     {     
         _location = transform.position; 
-        transform.Translate(Vector3.forward * Time.deltaTime * 2.5f);
-        _base.transform.Translate(Vector3.forward * Time.deltaTime * 2f);
-        //===============================================================
+        transform.Translate(Vector3.forward * Time.deltaTime * 10f);
+        _base.transform.Translate(Vector3.forward * Time.deltaTime * 10f);
         //===============================================================
         if ((Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) && _line_now == number_of_lines._right_line)
         {   
-                transform.position = new Vector3 (_middle_line.x,_location.y,_location.z);
-                _line_now = number_of_lines._middle_line;
+            transform.position = new Vector3 (_middle_line.x,_location.y,_location.z + 0.1f);
+            _line_now = number_of_lines._middle_line;
         }
         else if(Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) {
-            transform.position = new Vector3(_left_line.x, _location.y, _location.z);
+            transform.position = new Vector3(_left_line.x, _location.y, _location.z + 0.1f);
             _line_now = number_of_lines._left_line;
         }
         //===============================================================
-        //===============================================================
         if ((Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) && _line_now == number_of_lines._left_line ){
-            transform.position = new Vector3(_middle_line.x, _location.y, _location.z);
+            transform.position = new Vector3(_middle_line.x, _location.y, _location.z + 0.1f);
             _line_now = number_of_lines._middle_line;
         }
         else if(Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
-            transform.position = new Vector3(_right_line.x, _location.y, _location.z);
+            transform.position = new Vector3(_right_line.x, _location.y, _location.z + 0.1f);
             _line_now = number_of_lines._right_line;
         }
+        //===============================================================
+        if (Input.GetKeyDown(KeyCode.Space)){
+            if (_end){   
+                _end = false;
+                transform.Translate(Vector3.up * 5f);
+                _trail_render.GetComponent<TrailRenderer>().emitting = false;
+            }
+        }
+            
+        //===============================================================
+        if (Input.GetKeyDown(KeyCode.LeftShift) && _end == false)
+            for (int i = 0; i < 999; i++)
+                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z + i);
+
+    }
+
+   
+         
+
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        _ = collision.gameObject.name == "Base" ? _end = true : _end = false;
+        _trail_render.GetComponent<TrailRenderer>().emitting = true;
     }
 }
